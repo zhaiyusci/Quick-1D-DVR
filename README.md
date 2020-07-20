@@ -23,7 +23,7 @@ To build it, simply type `make` and press `enter`.
 Also I provide a binary version so the user can use it directly.
 
 ## Usage
-Usage: /path/to/quick1ddvr <filename>.inp
+Usage: `/path/to/quick1ddvr <filename>.inp`
 
 The input file should be a plain text file with format shown in `sample/sample_hcl.inp`
 `#` is the starting of comments.
