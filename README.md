@@ -2,13 +2,13 @@
 
 An interface of yDVR for non-programmer
 
-Yu Zhai <yuzhai@mail.huiligroup.org> 
+Yu Zhai [yuzhai@mail.huiligroup.org](mailto:yuzhai@mail.huiligroup.org)
 
 Jilin University, Changchun, China
 
 ## Introduction
 
-The `Quick 1D DVR` code is an interface of part of the functionality of (yDVR)[https://github.com/zhaiyusci/ydvr] for non-programmer.
+The `Quick 1D DVR` code is an interface of part of the functionality of [yDVR](https://github.com/zhaiyusci/ydvr) for non-programmer.
 
 Idea behind the code is to do a sinc-DVR calculation, with automatic converge check, etc.
 
@@ -25,7 +25,19 @@ Also I provide a binary version so the user can use it directly.
 ## Usage
 Usage: /path/to/quick1ddvr <filename>.inp
 
-The input file should be a plain text file with format shown in `sample_hcl.inp`
+The input file should be a plain text file with format shown in `sample/sample_hcl.inp`
 `#` is the starting of comments.
+
+## Interesting features
+
++ The output `*.plot.txt` file is aims to give a good input file for plotting.
+Use some software like [Veusz](https://veusz.github.io/) it is easy to draw some textbook-like figure,
+with the wave functions fluctuating around its energy level, localized in the potential well.
+
+## Troubleshooting
+
++ If you use the binary, chances are that your get a `Kernel too old` error.  
+Please understand that it is your tech guy's responsibility to update the operating system.
+
 
 
