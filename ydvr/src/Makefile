@@ -9,7 +9,7 @@
 CXX=g++
 EIGENROOT=../../eigen
 CCFLAGS=-g -Ofast -Wall -Wextra --std=c++11 -fPIC -I$(EIGENROOT) 
-LDFLAGS=-static 
+LDFLAGS= # -lblas # -llapack
 
 objects=sincdvr.o dvr.o representation.o \
 				oscillator.o podvr.o log.o abstract_representation.o \

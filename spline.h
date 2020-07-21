@@ -1,5 +1,13 @@
-#ifndef SPLINE_H_
-#define SPLINE_H_
+// This file is part of Quick 1D DVR.
+//
+// Copyright (C) 2020 Yu Zhai <yuzhai@mail.huiligroup.org>
+//
+// This Source Code Form is subject to the terms of the Mozilla
+// Public License v. 2.0. If a copy of the MPL was not distributed
+// with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+#ifndef Q_SPLINE_H_
+#define Q_SPLINE_H_
 #include<vector>
 #include<iostream>
 #include<cmath>
@@ -88,4 +96,4 @@ class CubicSpline1d {
     }
 };
 
-#endif // SPLINE_H_
+#endif 

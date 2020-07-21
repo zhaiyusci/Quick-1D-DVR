@@ -1,6 +1,6 @@
-// This file is part of ydvr.
+// This file is part of Quick 1D DVR.
 //
-// Copyright (C) 2017-2020 Yu Zhai <me@zhaiyusci.net>
+// Copyright (C) 2020 Yu Zhai <yuzhai@mail.huiligroup.org>
 //
 // This Source Code Form is subject to the terms of the Mozilla
 // Public License v. 2.0. If a copy of the MPL was not distributed
@@ -9,6 +9,7 @@
 #include<ydvr.h>
 #include<utility>
 #include<cstdio>
+#include"iotools.h"
 #include"spline.h"
 #include"physical_constants.h"
 
@@ -16,32 +17,6 @@
 using namespace std;
 using namespace yDVR;
 
-void printUsage(){
-  cerr << endl;
-  cerr << "Usage: /path/to/quick1ddvr <filename>.inp" << endl;
-  cerr << "  The input file should be a plain text file with format shown in sample_hcl.inp" << endl;
-  cerr << endl;
-  exit(0);
-}
-
-bool mygetline(istream& s, string& line){
-  if(getline(s,line)){
-    size_t tmp = line.rfind("#");
-    if ( tmp != string::npos ){
-      line = line.substr(0,tmp);
-    }
-    return true;
-  }
-  return false;
-}
-
-class vpoint{
-  public:
-    Scalar q_, v_;
-    vpoint(double q, double v): q_(q), v_(v) {}
-    bool operator< (vpoint rhs) const {return this->q_ < rhs.q_;}
-    bool operator== (vpoint rhs) const {return fabs(this->q_ - rhs.q_) < 1e-8;}
-};
 
 int main(int argc, char* argv[]){
 
@@ -71,7 +46,7 @@ int main(int argc, char* argv[]){
   // 2. Read the input file and print them out...
   string line;
   ifstream input(filename+".inp");
-  mygetline(input, line);
+  getlinecmt(input, line);
   Scalar mass = 0.;
   int n_levels = 0;
   {
@@ -81,10 +56,17 @@ int main(int argc, char* argv[]){
 
   mass *= dalton;
 
-  mygetline(input, line); // blank line
+  getlinecmt(input, line); // blank line
 
+  class vpoint{
+    public:
+      Scalar q_, v_;
+      vpoint(double q, double v): q_(q), v_(v) {}
+      bool operator< (vpoint rhs) const {return this->q_ < rhs.q_;}
+      bool operator== (vpoint rhs) const {return fabs(this->q_ - rhs.q_) < 1e-8;}
+  };
   vector<vpoint> potvec;
-  while(mygetline(input,line)){
+  while(getlinecmt(input,line)){
     Scalar q, v;
     std::stringstream ss(line);
     if(ss >> q >> v) potvec.push_back(vpoint(q,v));
