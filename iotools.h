@@ -12,6 +12,7 @@
 #include<cstdlib>
 #include<utility>
 #include<cstdio>
+#include"physical_constants.h"
 
 void printUsage(){
   std::cerr << std::endl;
@@ -30,6 +31,71 @@ bool getlinecmt(std::istream& s, std::string& line){
     return true;
   }
   return false;
+}
+
+void writetofile(yDVR::DVR& dvr, const std::string& filename, int n_levels){
+  yDVR::Vector grids = dvr.grids();
+  yDVR::Vector energies = dvr.energyLevels();
+  yDVR::Matrix eigenvectors = dvr.energyStates();
+  int nsinc = dvr.grids().size();
+  {
+    std::cout << "Vibraional energy levels" << std::endl;
+    std::cout << "________________________________________________________________________" << std::endl;
+    printf("%3s  %20s  %20s\n", "v", "Energies(v)/cm_1", "Gap(v)/cm_1");
+    std::cout << "________________________________________________________________________" << std::endl;
+    for(int i =0; i <= n_levels; ++ i){
+      printf("%3d  %20.8f  %20.8f\n", i, energies(i)/cm_1, (energies(i)-energies(0))/cm_1);
+    }
+    std::cout << "________________________________________________________________________" << std::endl;
+  }
+
+  {
+    FILE* file = fopen((filename+".energies.txt").c_str(), "w");
+    fprintf(file, "%3s  %20s\n", "v", "Energies(v)/cm_1");
+    for(int i =0; i <= n_levels; ++ i){
+      fprintf(file, "%3d  %20.8f\n", i, energies(i)/cm_1);
+    }
+    std::cout << "Energies are written to " << filename << ".energies.txt" << std::endl;
+    fclose(file);
+  }
+
+  {
+    FILE* file = fopen((filename+".eigenvectors.txt").c_str(), "w");
+    fprintf(file, "%20s  %20s\n", "Grids/Ang", "Eigenvectors");
+    for(int j =0; j < nsinc; ++j){
+      fprintf(file, "%20.8f ", grids(j)/angstrom);
+      for(int i =0; i <= n_levels; ++ i){
+        fprintf(file, "%20.8f ", eigenvectors(j,i));
+      }
+      fprintf(file, "\n");
+    }
+    std::cout << "Eigenvectors are written to " << filename << ".eigenvectors.txt" << std::endl;
+    fclose(file);
+  }
+
+  {
+    std::vector<yDVR::Scalar> maxwf;
+    for(int i =0; i<= n_levels; ++i){
+      yDVR::Scalar min = eigenvectors.col(i).minCoeff();
+      yDVR::Scalar max = eigenvectors.col(i).maxCoeff();
+      yDVR::Scalar maxabs = fabs(min)>fabs(max) ? fabs(min) : fabs(max);
+      maxwf.push_back(maxabs);
+    }
+    FILE* file = fopen((filename+".plot.txt").c_str(), "w");
+    fprintf(file, "%20s  %20s %20s\n", "Grids/Ang", "Potential/cm-1", "Eigenvectors shifted");
+    for(int j =0; j < nsinc; ++j){
+      fprintf(file, "%20.8f %20.8f ", grids(j)/angstrom, dvr.oscillator().potential(grids(j))/cm_1);
+      for(int i =0; i <= n_levels; ++ i){
+        fprintf(file, "%20.8f ", energies(i)/cm_1 + eigenvectors(j,i)/maxwf[i]*(energies(i+1)-energies(i))*0.3/cm_1);
+      }
+      fprintf(file, "\n");
+    }
+    std::cout << "Plot are written to " << filename << ".plot.txt" << std::endl;
+    fclose(file);
+  }
+
+  return;
+  
 }
 
 #endif

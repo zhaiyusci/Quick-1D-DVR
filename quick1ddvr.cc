@@ -17,12 +17,65 @@
 using namespace std;
 using namespace yDVR;
 
+Scalar boundarycheck(SincDVR* sinc, Scalar a, Scalar b, int n_levels){
+  int nsinc = sinc->grids().size();
+  // Scalar a = sinc->grids()(0);
+  // Scalar b = sinc->grids()(nsinc-1);
+  // SincDVR check(sinc->oscillator(), a, b, nsinc-2);
+  Scalar range = b-a;
+  SincDVR check(sinc->oscillator(), a+0.025*range, b-0.025*range, nsinc);
+  Scalar E = check.energyLevel(n_levels);
+  return sinc->energyLevel(n_levels) - E;
+}
+
+SincDVR* iteration(Oscillator& osc, Scalar a, Scalar b, int itbegin, int itend, int n_levels, Scalar threshold, Scalar oldE, bool nobc = false){
+  int nsinc = n_levels;
+  vector<Scalar> oldEs(5, oldE);
+
+  SincDVR* sinc = nullptr;
+  cout << "!!!Try different number of grids with boundary (" << a/angstrom << "," << b/angstrom << ")..." << endl;
+  cout << "________________________________________________________________________" << endl;
+  printf("%10s %18s %18s %18s\n", "#Grids", "E/cm-1", "b avg. dE/cm-1", "boundary chk/cm-1");
+  cout << "________________________________________________________________________" << endl;
+  for (nsinc = itbegin; nsinc <= itend; ++nsinc){
+    sinc = new SincDVR(osc, a, b, nsinc);
+    Scalar E = sinc->energyLevel(n_levels);
+    Scalar oldE=0;
+    for(auto && i : oldEs){
+      oldE += i;
+    }
+    oldE /= oldEs.size();
+    Scalar deltaE = E-oldE;
+    if (fabs(deltaE) < 10000*cm_1){
+      if (fabs(deltaE) < threshold && (!nobc)){
+        Scalar bc=boundarycheck(sinc,a, b, n_levels);
+        printf("%10d %18.4f %18.8f %18.8f\n", nsinc, E/cm_1, deltaE/cm_1, bc/cm_1);
+      }else{
+        printf("%10d %18.4f %18.8f %18s\n", nsinc, E/cm_1, deltaE/cm_1, "---");
+      }
+    } else {
+      printf("%10d %18.4f %18s %18s\n", nsinc, E/cm_1, "---", "---");
+    }
+    if(fabs(deltaE) < threshold && (fabs(boundarycheck(sinc,a, b, n_levels)) < threshold || nobc)){
+      cout << "________________________________________________________________________" << endl;
+      cout << "!!!SincDVR converged with " << nsinc << " points (threshold = " << threshold/cm_1 << " cm-1)!!!" << endl;
+      return sinc;
+    }
+    oldEs.erase(oldEs.begin());
+    oldEs.push_back(E);
+    delete sinc;
+  }
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  cout << "!!!WARNING!!! SincDVR fail to converge within " << itend << " grids." << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  return nullptr;
+}
 
 int main(int argc, char* argv[]){
 
   cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
   cout << "*                                                                      =" << endl;
-  cout << "*                        Quick 1D DVR v 0.1.0                          =" << endl;
+  cout << "*                        Quick 1D DVR v 0.2.0                          =" << endl;
   cout << "*                                                                      =" << endl;
   cout << "*              An interface of yDVR for non-programmer                 =" << endl;
   cout << "*                                                                      =" << endl;
@@ -90,157 +143,103 @@ int main(int argc, char* argv[]){
     // cout << "pot " << i.q_ << "   "<< i.v_ << endl;
   }
 
-
   // 3. Do some calculation...
   Log::set(filename+".ydvr.log");
   CubicSpline1d pot(qs.size(), qs, vs, 1e99, 1e99); // The large numbers are for auto calculating tangent
 
   Oscillator osc(mass, pot);
 
-  // The sinc DVR adn PODVR representation
-  Scalar oldE = 1.e99;
-  int nsinc = n_levels;
+  // 3.1. First try largest range 
+  cout << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  cout << "Step 1. Try the largest possible range defined by potential given." << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
 
-  Vector energies;
-  Vector grids;
-  Matrix eigenvectors;
-  cout << "!!!Try different number of grids..." << endl;
-  cout << "________________________________________________________________________" << endl;
-  printf("%10s %20s %20s\n", "#Sinc-DVR", "E/cm-1", "delta E/cm-1");
-  cout << "________________________________________________________________________" << endl;
-  for (nsinc = n_levels+10; nsinc <=1000; nsinc+=50){
-    SincDVR sinc(osc, qs.front(), qs.back(), nsinc);
-    Scalar E = sinc.energyLevel(n_levels);
-    Scalar deltaE = E-oldE;
-    if (fabs(deltaE) < 10000*cm_1){
-      printf("%10d %20.4f %20.4f\n", nsinc, E/cm_1, deltaE/cm_1);
-    } else {
-      printf("%10d %20.4f %20s\n", nsinc, E/cm_1, "N/A");
-    }
-    if(fabs(deltaE) < 0.1*cm_1){ 
-      cout << "________________________________________________________________________" << endl;
-      cout << "!!!SincDVR converged with " << nsinc << " points!!!" << endl;
-      energies = sinc.energyLevels();
-      eigenvectors = sinc.energyStates();
-      grids = sinc.grids();
+  Scalar threshold = 0.1*cm_1;
+  Scalar a=qs.front();
+  Scalar b=qs.back();
+  // The magic number 10 are from my personal exprience
+  // The thing is Sinc-DVR is not the smart one, more grids are needed
+  int ngrids = n_levels+10; 
+  Scalar oldE = 1.e99;
+  SincDVR* sinc = iteration(osc, a, b, ngrids, 300, n_levels, threshold, oldE);
+  if(sinc == nullptr){
+    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+    cout << "!!!ERROR!!!" << endl
+      << "  The sinc-DVR calculation at largest possible range did not converge." << endl 
+      << "  This can be resulted from " << endl
+      << "    (a) Even 300 grids are not enough for this system, or"<<endl 
+      << "    (b) The calculation did not pass the boundary check."<< endl 
+      << "  I suggest to enlarge the range of potential scanning." << endl;
+    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+    exit(0);
+  }
+  writetofile(*sinc, filename+"_0", n_levels);
+  ngrids = sinc->grids().size();
+  oldE = sinc->energyLevel(n_levels);
+
+  cout << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  cout << "Step 2. Further check boundary." << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  cout << "Step 2.1. Left boundary." << endl;
+  Scalar contriba=0;
+  int ai = 0;
+  for (int i = 0; i < ngrids; ++i){
+    contriba += fabs(sinc->hamiltonianMatrix()(i,i)*pow(sinc->energyState(n_levels)(i),2)); 
+    if (contriba> 0.1*threshold){ 
+      if (i <= 1){
+        cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+        cout << "!!!ERROR!!!" << endl
+          << "  Left boundary check did not pass. " << endl 
+          << "  Lengthen the PEC to give a long tail for the wave function." << endl;
+        cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+        exit(0);
+      }
+      ai=i;
       break;
     }
-    oldE = E;
   }
-
-  printf("%3s  %20s\n", "v", "energies(v)/cm_1");
-  for(int i =0; i <= n_levels; ++ i){
-    printf("%3d  %20.4f\n", i, energies(i)/cm_1);
-  }
-
-  {
-    FILE* file = fopen((filename+".energies.txt").c_str(), "w");
-    fprintf(file, "%3s  %20s\n", "v", "Energies(i)/cm_1");
-    for(int i =0; i <= n_levels; ++ i){
-      fprintf(file, "%3d  %20.8f\n", i, energies(i)/cm_1);
-    }
-    cout << "Energies are written to " << filename << ".energies.txt" << endl;
-    fclose(file);
-  }
-
-  {
-    FILE* file = fopen((filename+".eigenvectors.txt").c_str(), "w");
-    fprintf(file, "%20s  %20s\n", "Grids/Ang", "Eigenvectors");
-    for(int j =0; j < nsinc; ++j){
-      fprintf(file, "%20.8f ", grids(j)/angstrom);
-      for(int i =0; i <= n_levels; ++ i){
-        fprintf(file, "%20.8f ", eigenvectors(j,i));
+  cout << "Step 2.2. Right boundary." << endl;
+  Scalar contribb=0;
+  int bi = 0;
+  for (int i = ngrids -1 ; i >= 0; --i){
+    contribb += fabs(sinc->hamiltonianMatrix()(i,i)*pow(sinc->energyState(n_levels)(i),2)); 
+    if (contribb > 0.1*threshold){
+      if (i >= ngrids-2){
+        cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+        cout << "!!!ERROR!!!" << endl
+          << "  Right boundary check did not pass. " << endl 
+          << "  Lengthen the PEC to give a long tail for the wave function." << endl;
+        cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+        exit(0);
       }
-      fprintf(file, "\n");
+      bi=i;
+      break;
     }
-    cout << "Eigenvectors are written to " << filename << ".eigenvectors.txt" << endl;
-    fclose(file);
   }
+  a=sinc->grids()(ai-1);
+  b=sinc->grids()(bi+1);
+  cout << "The following step(s) will be based on new boundary without check." << endl;
 
-  {
-    vector<Scalar> maxwf;
-    for(int i =0; i<= n_levels; ++i){
-      Scalar min = eigenvectors.col(i).minCoeff();
-      Scalar max = eigenvectors.col(i).maxCoeff();
-      Scalar maxabs = fabs(min)>fabs(max) ? fabs(min) : fabs(max);
-      maxwf.push_back(maxabs);
-    }
-    FILE* file = fopen((filename+".plot.txt").c_str(), "w");
-    fprintf(file, "%20s  %20s %20s\n", "Grids/Ang", "Potential/cm-1", "Eigenvectors shifted");
-    for(int j =0; j < nsinc; ++j){
-      fprintf(file, "%20.8f %20.8f ", grids(j)/angstrom, osc.potential(grids(j))/cm_1);
-      for(int i =0; i <= n_levels; ++ i){
-        fprintf(file, "%20.8f ", energies(i)/cm_1 + eigenvectors(j,i)/maxwf[i]*(energies(i+1)-energies(i))*0.3/cm_1);
-      }
-      fprintf(file, "\n");
-    }
-    cout << "Plot are written to " << filename << ".plot.txt" << endl;
-    fclose(file);
-  }
 
-  if (energies.size() == 0){
-    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-    cout << "!!!ERROR!!! SincDVR fail to converge within 1000 grids." << endl;
-    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-    return -1;
-  }
-
-  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-  cout << "*                          SANITY CHECKS                               =" << endl;
-  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
   cout << endl;
-  cout << "1. Is the integral range large enough?" << endl;
-  {
-    Scalar range = qs.back() - qs.front();
-    SincDVR sinc(osc, qs.front()+range*0.01, qs.back()-range*0.01, nsinc);
-    Scalar E = sinc.energyLevel(n_levels);
-    if(fabs(energies(n_levels) - E) < 0.1*cm_1){
-      cout << "    PASS!!!" << endl;
-    }else{
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-      cout << "    !!!WARNING!!!" << endl
-        << "        A slightly smaller range integral gives different energy at " << endl 
-        << "        highest vibrational state wanted." << endl
-        << "        Full-range integral gives " << energies(n_levels)/cm_1 << " cm-1, "<<endl 
-        << "        while a 98\% one gives " << E/cm_1 <<" cm-1."<< endl 
-        << "        I suggest to enlarge the range of potential scanning." << endl;
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-    }
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  cout << "Step 3. Recalculate the energy levels on a shortened range." << endl;
+  cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+  ngrids =bi-ai+1;;
+  delete sinc;
+  sinc = iteration(osc, a, b, ngrids, ngrids+3, n_levels, threshold, oldE, true);
+  if(sinc == nullptr){
+    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
+    cout << "!!!WARNING!!!" << endl
+      << "  This iteration should converge within 1 step or 2, but it did not." << endl 
+      << "  If anything else is good, just use result from Step 1 (Files " << endl
+      << "  " << filename << "_0.*.txt ) ." << endl;
+    cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
   }
-  cout << "2. Does the frequencies look normal?" << endl;
-  {
-    if((energies[1] - energies[0])/cm_1 < 4000.){
-      cout << "    PASS!!!" << endl;
-    }else{
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-      cout << "    !!!WARNING!!!" << endl
-        << "        Normally for a molecular system, fundamental frequency should be" << endl
-        << "        less than 4000 cm-1.  If you are trying calculate some system " << endl 
-        << "        which is not a regular molecule, ignore this warning. However, " << endl
-        << "        if you are working on a regular molecule, no matter it is" << endl
-        << "        a diatomic molecule or a normal mode, double check (a) the " << endl 
-        << "        units you use (b) the quantum chemistry calculation." << endl;
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-    }
-  }
-  cout << "3. Does the anharmonic behaviour look normal?" << endl;
-  {
-    if(energies[2] - energies[1] < energies[1] - energies[0] ){
-      cout << "    PASS!!!" << endl;
-    }else{
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-      cout << "    !!!WARNING!!!" << endl
-        << "        Normally for a diatomic molecule, fundamental frequency should be" << endl
-        << "        larger than hot bands. If you are working on a normal mode, ignore" << endl
-        << "        this warning. " << endl;
-      cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << endl;
-    }
-  }
-  cout << endl
-    << "Disclaimer: These checks may or may NOT be reliable. They are NOT peer-" << endl
-    << "    reviewed methods. However, if WARNING(s) are reported," << endl
-    << "    the user should NOT use the results without further thinking." << endl
-    << endl;
+
+  writetofile(*sinc, filename, n_levels);
 
   cout << "Quick 1D DVR ends normally." << endl << endl;
   return 0;
