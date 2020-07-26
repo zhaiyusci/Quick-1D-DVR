@@ -6,7 +6,6 @@
 # Public License v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-CXX=g++
 EIGENROOT=../../eigen
 CCFLAGS=-g -Ofast -Wall -Wextra --std=c++11 -fPIC -I$(EIGENROOT) 
 LDFLAGS= # -lblas # -llapack
