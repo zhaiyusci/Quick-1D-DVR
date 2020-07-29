@@ -13,4 +13,6 @@ const double angstrom = 1.8897261254578281;
 const double cm_1 = 0.000004556335252766616;
 const double degree = M_PI/180.;
 const double dalton = 1822.888486209;
+const double eV = 0.036749322480854656;
+const double kelvin = 0.0000031668105084779793;
 #endif

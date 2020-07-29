@@ -13,7 +13,7 @@ CCFLAGS=-g -Ofast -Wall -Wextra --std=c++11 -fPIC -I$(EIGENROOT)
 LDFLAGS=-static
 YDVR=./ydvr/src
 
-quick1ddvr: quick1ddvr.cc spline.h physical_constants.h $(YDVR)/libydvr.a
+quick1ddvr: quick1ddvr.cc spline.h physical_constants.h iotools.h $(YDVR)/libydvr.a
 	$(CXX) -o $@ $(CCFLAGS) $(LDFLAGS) -I$(YDVR) quick1ddvr.cc $(YDVR)/libydvr.a
 
 $(YDVR)/libydvr.a: ydvr

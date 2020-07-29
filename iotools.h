@@ -9,6 +9,7 @@
 #ifndef Q_IOTOOLS_H_
 #define Q_IOTOOLS_H_
 #include<ydvr.h>
+#include<iostream>
 #include<cstdlib>
 #include<utility>
 #include<cstdio>
@@ -78,7 +79,7 @@ void writetofile(yDVR::DVR& dvr, const std::string& filename, int n_levels){
     for(int i =0; i<= n_levels; ++i){
       yDVR::Scalar min = eigenvectors.col(i).minCoeff();
       yDVR::Scalar max = eigenvectors.col(i).maxCoeff();
-      yDVR::Scalar maxabs = fabs(min)>fabs(max) ? fabs(min) : fabs(max);
+      yDVR::Scalar maxabs = fabs(min)>fabs(max) ? min : max;
       maxwf.push_back(maxabs);
     }
     FILE* file = fopen((filename+".plot.txt").c_str(), "w");
@@ -96,6 +97,58 @@ void writetofile(yDVR::DVR& dvr, const std::string& filename, int n_levels){
 
   return;
   
+}
+
+void banner(){
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  std::cout << "*                                                                      =" << std::endl;
+  std::cout << "*                             Quick 1D DVR                             =" << std::endl;
+  std::cout << "*                                v0.3.0                                =" << std::endl;
+  std::cout << "*                                                                      =" << std::endl;
+  std::cout << "*               An interface of yDVR for non-programmer                =" << std::endl;
+  std::cout << "*                                                                      =" << std::endl;
+  std::cout << "*                 Yu Zhai <yuzhai@mail.huiligroup.org>                 =" << std::endl;
+  std::cout << "*                  Jilin University, Changchun, China                  =" << std::endl;
+  std::cout << "*                                                                      =" << std::endl;
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+}
+
+void warning(const std::vector<std::string>& info){
+  std::cout << std::endl;
+  std::cout << "*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=" << std::endl;
+  for(auto && i : info){
+    std::cout << i << std::endl;
+  }
+  std::cout << "*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=WARNING=*=" << std::endl;
+  std::cout << std::endl;
+}
+void warning(const std::string& info){
+  warning(std::vector<std::string>({info}));
+}
+void fatal(const std::vector<std::string>& info){
+  std::cout << std::endl;
+  std::cout << "*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=" << std::endl;
+  for(auto && i : info){
+    std::cout << i << std::endl;
+  }
+  std::cout << "*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=FATAL=*=*=" << std::endl;
+  std::cout << std::endl;
+  exit(0);
+}
+void fatal(const std::string& info){
+  fatal(std::vector<std::string>({info}));
+}
+void section(const std::string& title){
+  std::cout << std::endl;
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  std::cout << title << std::endl;
+  std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  std::cout << std::endl;
+}
+void subsection(const std::string& title){
+  std::cout << " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" << std::endl;
+  std::cout << "  " << title << std::endl;
+  std::cout << " - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -" << std::endl;
 }
 
 #endif

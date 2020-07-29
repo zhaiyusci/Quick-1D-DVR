@@ -1,6 +1,13 @@
-0.9722222222222222  5       # <reduced mass in amu>   <number of vibrational states wanted>
-                            # blank line
-0.60          389637.24401  # <r in Angstrom>   <potential in cm-1>
+mass 0.972                  # <reduced mass in amu>   
+
+
+nlevels 7                   # <number of vibrational states wanted>
+
+
+
+
+pec                         # <r in Angstrom>   <potential in cm-1>
+0.60          389637.24401
 0.61          362038.02446
 0.62          336310.77207
 0.63          312331.55079
@@ -190,3 +197,5 @@
 2.47           27804.52536
 2.48           27981.32353
 2.49           28155.95643
+endpec
+
