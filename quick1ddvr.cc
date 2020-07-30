@@ -178,6 +178,9 @@ int main(int argc, char* argv[]){
   a *= lengthunit;
   b *= lengthunit;
   threshold *= energyunit;
+  if(mass == 0.){
+    fatal("Please set the reduced mass.");
+  }
   if(threshold == 0.){
     threshold = 0.1 * cm_1;
   }

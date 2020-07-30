@@ -103,7 +103,7 @@ void banner(){
   std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
   std::cout << "*                                                                      =" << std::endl;
   std::cout << "*                             Quick 1D DVR                             =" << std::endl;
-  std::cout << "*                                v0.3.0                                =" << std::endl;
+  std::cout << "*                                v0.3.1                                =" << std::endl;
   std::cout << "*                                                                      =" << std::endl;
   std::cout << "*               An interface of yDVR for non-programmer                =" << std::endl;
   std::cout << "*                                                                      =" << std::endl;
