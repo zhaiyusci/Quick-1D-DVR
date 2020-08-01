@@ -6,7 +6,7 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-#include<ydvr.h>
+#include<ydvr.hh>
 #include<utility>
 #include<cstdio>
 #include"iotools.h"
@@ -15,6 +15,7 @@
 #include<algorithm>
 #include<cctype>
 #include<string>
+#include<fstream>
 
 
 using namespace std;
@@ -194,7 +195,6 @@ int main(int argc, char* argv[]){
   }
 
   // 3. Do some calculation...
-  Log::set(filename+".ydvr.log");
   CubicSpline1d pot(qs.size(), qs, vs, 1e99, 1e99); // The large numbers are for auto calculating tangent
 
   Oscillator osc(mass, pot);
@@ -281,4 +281,5 @@ int main(int argc, char* argv[]){
   cout << "Quick 1D DVR ends normally." << endl << endl;
   return 0;
 }
+
 

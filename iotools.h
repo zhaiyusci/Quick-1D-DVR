@@ -8,7 +8,7 @@
 
 #ifndef Q_IOTOOLS_H_
 #define Q_IOTOOLS_H_
-#include<ydvr.h>
+#include<ydvr.hh>
 #include<iostream>
 #include<cstdlib>
 #include<utility>
@@ -111,6 +111,7 @@ void banner(){
   std::cout << "*                  Jilin University, Changchun, China                  =" << std::endl;
   std::cout << "*                                                                      =" << std::endl;
   std::cout << "*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=" << std::endl;
+  return;
 }
 
 void warning(const std::vector<std::string>& info){
