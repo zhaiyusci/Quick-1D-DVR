@@ -16,7 +16,13 @@ I suggest a coupled cluster one for electronic ground state.
 import numpy as np
 import os
 
-with open(f"energy.txt","w") as pec:
+with open(f"sample_hcl.inp","w") as pec:
+    pec.write('''\
+mass 0.972                  # <reduced mass in amu>   
+nlevels 7                   # <number of vibrational states wanted>
+
+pec                         # <r in Angstrom>   <potential in cm-1>
+''')
     for r in np.arange(0.6, 2.5, 0.01):
         with open(f"{r:4.2f}.xyz","w") as f:
             f.write("2\n\n")
@@ -28,6 +34,7 @@ with open(f"energy.txt","w") as pec:
                 ).read().split()[3])\
                 +5.052813509006)*219474.6313702
         pec.write(f"{r:4.2f}  {out:20.5f}\n")
+    pec.write('endpec\n')
     
 os.popen("rm -f *.xyz charges wbo xtbrestart xtbtopo.mol")
         
