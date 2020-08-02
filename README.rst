@@ -50,7 +50,7 @@ However, in this project, I did
 not use any OS-specific code so it should be fine. If any problem occur,
 raise an issue on Github.
 
-Also I provide an AppImage (for Linux) so the user can use it directly.
+Also I provide an binary (for Linux) so the user can use it directly.
 
 Maybe also an `exe` on Windows, let us see.
 

@@ -10,11 +10,8 @@
 export CXX
 EIGENROOT=./eigen
 CCFLAGS=-Ofast -Wall -Wextra --std=c++11 -I$(EIGENROOT) 
-LDFLAGS=#-static
+LDFLAGS=-static
 YDVR=./ydvr
-
-quick1ddvr-latest-x86_64.AppImage: quick1ddvr
-	appimage-builder --skip-test
 
 quick1ddvr: quick1ddvr.cc spline.h physical_constants.h iotools.h $(YDVR)/libydvr.a
 	$(CXX) -o $@ $(CCFLAGS) $(LDFLAGS) -I$(YDVR) quick1ddvr.cc $(YDVR)/libydvr.a
