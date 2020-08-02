@@ -26,10 +26,11 @@ Installation guide
 
 As is said in the Introduction part, it is for the non-programmer, thus
 it is shipped with all its dependencies, including a copy of Eigen 3.3.7
-and (part of) yDVR 2.2.0.
+and (one-dimension part of) yDVR 2.2.0.
 
-To build it manually, simply type ``make`` and press ``enter``. As I
-tested, from ``g++-7`` on and ``clang++-6.0`` on (Ubuntu), should work.
+To build it manually, simply type ``make quick1ddvr`` and press 
+``enter``. As I tested, from ``g++-7`` on and ``clang++-6.0`` on 
+(Ubuntu), should work.
 A new Ubuntu should shipped with ``gcc-9`` by default. If a C++ compiler
 is not available, type
 
@@ -37,15 +38,21 @@ is not available, type
 
   sudo apt install g++-7  # GCC 7 should be available on even an slightly old OS
 
-On other systems, similar installation can be done with its own package
-management.
+On other distributions, similar installation can be done with their own 
+package managements.
 
-On Windows or MacOS, tests are not done. However, in this project, I did
+On Windows, TDM-GCC is used to build.
+
+On Android, the program can be build on Termux.
+
+On MacOS, tests are not done, because I do not have a Mac.
+However, in this project, I did
 not use any OS-specific code so it should be fine. If any problem occur,
 raise an issue on Github.
 
-Also I provide a binary version (for Linux) so the user can use it
-directly.
+Also I provide an AppImage (for Linux) so the user can use it directly.
+
+Maybe also an `exe` on Windows, let us see.
 
 Usage
 -----
@@ -69,6 +76,8 @@ Varaibles
 - ``mass <mass>``, reduced mass in amu, required.
 - ``nlevels <n_levels>``, number of excited state wanted, optional, default 5.
 - ``threshold``, converge energy threshold, optional, default 0.1 cm-1.
+- ``fixedboundary <a> <b> <ngrids>``, perform a plain sinc-DVR computation with
+  boundary and number of grinds fixed.
 
 Units
 ^^^^^

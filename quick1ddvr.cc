@@ -33,6 +33,7 @@ Scalar massunit = dalton;
 string massunit_str("amu");
 bool fixboundary = false;
 int n_levels = 5;
+int ngrids = 50;
 
 Scalar boundarycheck(SincDVR* sinc, Scalar a, Scalar b, int n_levels){
   int nsinc = sinc->grids().size();
@@ -151,7 +152,7 @@ int main(int argc, char* argv[]){
         energyunit_str = "eV";
       }else if(word == string("fixboundary")){
         fixboundary = true;
-        ss >> a >> b;
+        ss >> a >> b >> ngrids;
       }else if(word == string("pec")){
         while(getlinecmt(input,line)){
           size_t tmp = line.rfind("endpec");
@@ -199,14 +200,26 @@ int main(int argc, char* argv[]){
 
   Oscillator osc(mass, pot);
 
+  if(fixboundary){
+    section("Calculate according to user-defined parameters");
+    warning(vector<string>({
+          "No check will be performed. User-defined parameters could be ",
+          "inappropriate, or very good. Please double check the input."
+          }));
+    SincDVR sinc(osc, a, b, ngrids);
+    writetofile(sinc, filename, n_levels);
+    cout << "Quick 1D DVR ends normally." << endl << endl;
+    return 0;
+  }
+
   // 3.1. First try largest range 
   section("Step 1. Try the largest possible range defined by potential given.");
 
   a=qs.front();
   b=qs.back();
-  // The magic number 10 are from my personal exprience
+  // The magic number 10 are from my own experience
   // The thing is Sinc-DVR is not the smart one, more grids are needed
-  int ngrids = n_levels+10; 
+  ngrids = n_levels+10; 
   Scalar oldE = 1.e99;
   SincDVR* sinc = iteration(osc, a, b, ngrids, 300, n_levels, threshold, oldE);
   if(sinc == nullptr){

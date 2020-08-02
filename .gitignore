@@ -32,3 +32,8 @@
 *.app
 *.x
 
+
+/AppDir
+/appimage-builder-cache
+quick1ddvr
+
