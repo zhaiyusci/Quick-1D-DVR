@@ -2,7 +2,7 @@
 #
 # Copyright (C) 2017-2020 Yu Zhai <me@zhaiyusci.net>
 #
-# This Source Code Form is subject to the terms of the Mozilla
+# This Source Code Fo$(RM) is subject to the te$(RM)s of the Mozilla
 # Public License v. 2.0. If a copy of the MPL was not distributed
 # with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
@@ -17,12 +17,12 @@ quick1ddvr: quick1ddvr.cc spline.h physical_constants.h iotools.h $(YDVR)/libydv
 	$(CXX) -o $@ $(CCFLAGS) $(LDFLAGS) -I$(YDVR) quick1ddvr.cc $(YDVR)/libydvr.a
 
 $(YDVR)/libydvr.a: ydvr
-	make -C $(YDVR) 
+	$(MAKE) -C $(YDVR) 
 
 .PHONY: clean
 
 clean:
-	make -C $(YDVR) realclean
-	rm -f quick1ddvr *.o *.a
+	$(MAKE) -C $(YDVR) realclean
+	$(RM) quick1ddvr *.o *.a
 
 
