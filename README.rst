@@ -76,7 +76,7 @@ Varaibles
 - ``mass <mass>``, reduced mass in amu, required.
 - ``nlevels <n_levels>``, number of excited state wanted, optional, default 5.
 - ``threshold``, converge energy threshold, optional, default 0.1 cm-1.
-- ``fixedboundary <a> <b> <ngrids>``, perform a plain sinc-DVR computation with
+- ``fixboundary <a> <b> <ngrids>``, perform a plain sinc-DVR computation with
   boundary and number of grinds fixed.
 
 Units
