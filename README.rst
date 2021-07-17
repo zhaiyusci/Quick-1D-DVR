@@ -1,6 +1,8 @@
 Quick 1D DVR
 ============
 
+.. image:: https://img.shields.io/github/license/zhaiyusci/Quick-1D-DVR   :alt: GitHub
+
 An interface of yDVR for non-programmer
 
 Yu Zhai <yuzhai@mail.huiligroup.org>
