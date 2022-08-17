@@ -94,10 +94,11 @@ int main(int argc, char* argv[]){
   banner();
 
   // 1. Parse the file name...
-  if(argc != 2){
-    printUsage();
-  } 
-  string filename(argv[1]);
+  // if(argc != 2){
+  // printUsage();
+  // }
+  // string filename(argv[1]);
+  string filename("/sample_hcl.inp");
   size_t tmp = filename.rfind(".inp");
   if (tmp == string::npos){
     printUsage();

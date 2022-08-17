@@ -1,5 +1,5 @@
 objects=abstract_representation.o dvr.o sincdvr.o 
-CXXFLAGS=-Ofast -Wall -Wextra -I ../eigen --std=c++11
+CXXFLAGS=-O3 -Wall -Wextra -I ../eigen --std=c++11
 libydvr.a: $(objects)
 	$(AR) -cvq libydvr.a $(objects)
 abstract_representation.o: abstract_representation.cc config.hh \
